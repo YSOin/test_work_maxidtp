@@ -39,8 +39,8 @@ def get_data_from_mysklad(token):
     for item in data['rows']:
         some_data = {
                     'username':item['name'],
-                    'moy_sklad_id':item['id'],
-                    'moy_sklad_account_id':item['accountId'],
+                    'order_id':item['id'],
+                    'account_id':item['accountId'],
                     'order_date':item['created'],
                     'order_code':item['code'],
                     'order_sum':item['sum']
@@ -59,26 +59,26 @@ def push_data_from_mysklad():
 class SerhiiOreders(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120), unique=True, nullable=False)
-    moy_sklad_id = db.Column(db.String(120), unique=True, nullable=False)
-    moy_sklad_account_id = db.Column(db.String(120), nullable=False)
+    order_id = db.Column(db.String(120), unique=True, nullable=False)
+    account_id = db.Column(db.String(120), nullable=False)
     order_date = db.Column(db.DateTime, nullable=False)
     order_code = db.Column(db.String(120), nullable=False) 
     order_sum = db.Column(db.Float, nullable=False)
-    def __init__(self, username, moy_sklad_id, moy_sklad_account_id, order_date, order_code, order_sum):
+    def __init__(self, username, order_id, account_id, order_date, order_code, order_sum):
         self.username = username
-        self.moy_sklad_id = moy_sklad_id
-        self.moy_sklad_account_id = moy_sklad_account_id
+        self.order_id = order_id
+        self.account_id = account_id
         self.order_date = order_date
         self.order_code = order_code
         self.order_sum = order_sum
     def __repr__(self):
-        return f'<Order {self.id} {self.username}, {self.order_date}, {self.order_sum}, {self.order_code}>'
+        return f'<Order {self.id}, {self.order_id} {self.id}, {self.username}, {self.order_date}, {self.order_sum}, {self.order_code}>'
 
 
 #Order Schema
 class OrderSchema(ma.Schema):
     class Meta():
-        fields = ('id', 'username', 'moy_sklad_id', 'moy_sklad_account_id', 'order_date', 'order_code', 'order_sum')
+        fields = ('id', 'username', 'order_id', 'account_id', 'order_date', 'order_code', 'order_sum')
 
 #init Schema
 order_schema = OrderSchema()
@@ -96,13 +96,13 @@ def index():
 @app.route('/order', methods = ['POST'])
 def add_order():
     username = request.json['username']
-    moy_sklad_id = request.json['moy_sklad_id']
-    moy_sklad_account_id = request.json['moy_sklad_account_id']
+    order_id = request.json['order_id']
+    account_id = request.json['account_id']
     order_date = request.json['order_date']
     order_code = request.json['order_code']
     order_sum = request.json['order_sum']
 
-    new_oreder = SerhiiOreders(username, moy_sklad_id, moy_sklad_account_id, order_date, order_code, order_sum)
+    new_oreder = SerhiiOreders(username, order_id, account_id, order_date, order_code, order_sum)
     
     db.session.add(new_oreder)
     db.session.commit()
@@ -127,15 +127,15 @@ def get_order(id):
 def update_order(id):
     order = SerhiiOreders.query.get(id)
     username = request.json['username']
-    moy_sklad_id = request.json['moy_sklad_id']
-    moy_sklad_account_id = request.json['moy_sklad_account_id']
+    order_id = request.json['order_id']
+    account_id = request.json['account_id']
     order_date = request.json['order_date']
     order_code = request.json['order_code']
     order_sum = request.json['order_sum']
 
     order.username = username
-    order.moy_sklad_id = moy_sklad_id
-    order.moy_sklad_account_id = moy_sklad_account_id
+    order.order_id = order_id
+    order.account_id = account_id
     order.order_date = order_date
     order.order_code = order_code
     order.order_sum = order_sum
